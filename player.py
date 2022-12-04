@@ -11,7 +11,7 @@ class Player:
         self.height = 270
         self.pitch = 40
         self.angle_velocity = 0.01
-        self.velocity = 10
+        self.velocity = 3
 
     def update(self):
         sin_a = math.sin(self.angle)

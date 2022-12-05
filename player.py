@@ -17,7 +17,7 @@ class Player:
         self.height = 270
         self.pitch = 40
         self.angle_velocity = 0.1
-        self.velocity = 3
+        self.velocity = 2
         self.sensetivity = 0.002
 
     def update(self):
@@ -37,7 +37,17 @@ class Player:
 
         if 0 < x and len(vr.height_map) > x and 0 < y and len(vr.height_map) > y:
 
-            self.height = vr.height_map[int(x), int(y)][0] + 20
+            if pressed_key[pg.K_LSHIFT] and self.height == vr.height_map[int(x), int(y)][0] + 20:
+                self.height = vr.height_map[int(x), int(y)][0] + 20
+                self.height += 15
+                self.velocity = 0.5
+            elif pressed_key[pg.K_LSHIFT] and self.height != vr.height_map[int(x), int(y)][0] + 20:
+                self.height = vr.height_map[int(x), int(y)][0] + 20
+                self.height -= 15
+                self.velocity = 0.5
+            else:
+                self.height = vr.height_map[int(x), int(y)][0] + 20
+                self.velocity = 2
 
             if pressed_key[pg.K_w]:
                 self.pos[0] += self.velocity * cos_a
@@ -51,6 +61,9 @@ class Player:
             if pressed_key[pg.K_d]:
                 self.pos[0] -= self.velocity * sin_a
                 self.pos[1] += self.velocity * cos_a
+
+
+
 
     def mouse_control(self):
         if pg.mouse.get_focused():

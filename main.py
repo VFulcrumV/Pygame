@@ -42,8 +42,8 @@ class App:
         display_fps = str(int(clock.get_fps()))
         render_fps = self.font.render(display_fps, True, 'green')
         render_height = self.font.render(str(self.player.height), True, 'blue')
-        self.screen.blit(render_fps, (settings.WIDTH - 20, 5))
-        self.screen.blit(render_height, (settings.WIDTH - 20, 20))
+        self.screen.blit(render_fps, (10, 5))
+        self.screen.blit(render_height, (10, 20))
 
     def run(self):
         while True:

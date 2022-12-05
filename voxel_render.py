@@ -20,15 +20,15 @@ class VoxelRender:
         self.app = app
         self.player = app.player
         self.fov = math.pi / 3
-        self.height_fov = self.fov / 2
-        self.num_rays =app.width
+        self.height_fov = self.fov / 3
+        self.num_rays = app.width
         self.delta_angle = self.fov / self.num_rays
         self.ray_distance = 2000
         self.scale_height = 620
-        self.screen_arrray = np.full((app.width, app.height, 3), (0, 0, 0))
+        self.screen_array = np.full((app.width, app.height, 3), (0, 0, 0))
 
     def update(self):
-        self.screen_arrray = ray_casting(self.screen_arrray, self.player.pos, self.player.angle,
+        self.screen_array = ray_casting(self.screen_array, self.player.pos, self.player.angle,
                                          self.player.height, self.player.pitch, self.app.width,
                                          self.app.height, self.delta_angle, self.ray_distance,
                                          self.height_fov, self.scale_height)

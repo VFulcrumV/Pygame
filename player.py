@@ -15,7 +15,7 @@ class Player:
         self.pos = np.array([50, 50], dtype=float)
         self.angle = math.pi / 4
         self.height = 270
-        self.pitch = 40
+        self.pitch = 200
         self.angle_velocity = 0.1
         self.velocity = 2
         self.sensetivity = 0.002
@@ -39,11 +39,11 @@ class Player:
 
             if pressed_key[pg.K_LSHIFT] and self.height == vr.height_map[int(x), int(y)][0] + 20:
                 self.height = vr.height_map[int(x), int(y)][0] + 20
-                self.height += 15
+                self.height += 10
                 self.velocity = 0.5
             elif pressed_key[pg.K_LSHIFT] and self.height != vr.height_map[int(x), int(y)][0] + 20:
                 self.height = vr.height_map[int(x), int(y)][0] + 20
-                self.height -= 15
+                self.height -= 10
                 self.velocity = 0.5
             else:
                 self.height = vr.height_map[int(x), int(y)][0] + 20
@@ -66,12 +66,15 @@ class Player:
 
 
     def mouse_control(self):
-        if pg.mouse.get_focused():
+        if pg.mouse.get_focused() :
             difference_x = pg.mouse.get_pos()[0] - settings.HALF_WIDTH
             difference_y = pg.mouse.get_pos()[1] - settings.HALF_HEIGHT
             pg.mouse.set_pos((settings.HALF_WIDTH, settings.HALF_HEIGHT))
             self.angle += difference_x * self.sensetivity
-            self.pitch -= difference_y
+            if self.pitch >= -530:
+                self.pitch -= difference_y
+            elif difference_y <= 0:
+                self.pitch -= difference_y
         else:
             window_x, window_y = self.get_window_coords()
             try:

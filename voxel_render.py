@@ -34,7 +34,7 @@ class VoxelRender:
                                          self.height_fov, self.scale_height)
 
     def draw(self):
-        self.app.screen.blit(pg.surfarray.make_surface(self.screen_arrray), (0, 0))
+        self.app.screen.blit(pg.surfarray.make_surface(self.screen_array), (0, 0))
 
 
 @njit(fastmath=True)

@@ -20,7 +20,7 @@ class VoxelRender:
         self.app = app
         self.player = app.player
         self.fov = math.pi / 3
-        self.height_fov = self.fov / 3
+        self.height_fov = self.fov / 2
         self.num_rays = app.width
         self.delta_angle = self.fov / self.num_rays
         self.ray_distance = 2000

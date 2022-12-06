@@ -4,7 +4,6 @@ from player import Player
 from voxel_render import VoxelRender
 import settings
 
-
 class App:
     def __init__(self):
         pg.init()
@@ -47,8 +46,12 @@ class App:
 
     def run(self):
         while True:
+            if pg.key.get_pressed()[pg.K_SPACE] and self.player.main_space_flag:
+                self.player.main_space_flag = True
             self.update()
             self.draw()
+            if pg.key.get_pressed()[pg.K_SPACE] and not self.player.main_space_flag:
+                self.player.main_space_flag = True
 
             [exit() for event in pg.event.get() if event.type == pg.QUIT]
 

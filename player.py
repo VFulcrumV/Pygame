@@ -20,6 +20,10 @@ class Player:
         self.velocity = 2
         self.sensetivity = 0.002
 
+        self.main_space_flag = False
+        self.jump_flag = 0
+        self.jump_coords = iter(range(9, 0, -1))
+
     def update(self):
         self.keys_control()
         self.mouse_control()
@@ -37,7 +41,9 @@ class Player:
 
         if 0 < x and len(vr.height_map) > x and 0 < y and len(vr.height_map) > y:
 
-            if pressed_key[pg.K_LSHIFT] and self.height == vr.height_map[int(x), int(y)][0] + 20:
+            if pressed_key[pg.K_SPACE] or self.main_space_flag:
+                self.space_control()
+            elif pressed_key[pg.K_LSHIFT] and self.height == vr.height_map[int(x), int(y)][0] + 20:
                 self.height = vr.height_map[int(x), int(y)][0] + 20
                 self.height += 10
                 self.velocity = 0.5
@@ -62,8 +68,24 @@ class Player:
                 self.pos[0] -= self.velocity * sin_a
                 self.pos[1] += self.velocity * cos_a
 
-
-
+    def space_control(self):
+        try:
+            if self.main_space_flag:
+                if self.jump_flag == 0:
+                    self.height += next(self.jump_coords)
+                else:
+                    self.height -= next(self.jump_coords)
+        except StopIteration:
+            if self.jump_flag == 0:
+                self.jump_coords = iter(range(1, 8))
+                self.jump_flag = 1
+            else:
+                self.jump_flag = 0
+                self.jump_coords = iter(range(7, 0, -1))
+                self.height = vr.height_map[int(self.pos[0]), int(self.pos[1])][0] + 20
+                self.main_space_flag = False
+        finally:
+            pass
 
     def mouse_control(self):
         if pg.mouse.get_focused() :

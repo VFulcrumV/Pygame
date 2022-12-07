@@ -42,6 +42,10 @@ class Player:
         if 0 < x and len(vr.height_map) > x and 0 < y and len(vr.height_map) > y:
 
             if pressed_key[pg.K_SPACE] or self.main_space_flag:
+                if pressed_key[pg.K_LSHIFT]:
+                    self.velocity = 0.5
+                else:
+                    self.velocity = 2
                 self.space_control()
             elif pressed_key[pg.K_LSHIFT] and self.height == vr.height_map[int(x), int(y)][0] + 20:
                 self.height = vr.height_map[int(x), int(y)][0] + 20

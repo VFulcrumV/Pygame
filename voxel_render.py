@@ -58,7 +58,7 @@ def ray_casting(screen_array, player_pos, player_angle, player_height, player_pi
 
                     #remove fish eye and get height on screen
                     depth *= math.cos(player_angle - ray_angle)
-                    height_on_screen = int((player_height - height_map[x, y][0]) / depth * scale_height + player_pitch)
+                    height_on_screen = int((player_height - height_map[x, y][0] + 5) / depth * scale_height + player_pitch)
 
                     #remove unnecessary drawing
                     if not first_contact:

@@ -22,7 +22,7 @@ class Player:
 
         self.main_space_flag = False
         self.jump_flag = 0
-        self.jump_coords = iter(range(7, 0, -1))
+        self.jump_coords = iter(range(12, 0, -1))
 
     def update(self):
         self.keys_control()
@@ -76,18 +76,19 @@ class Player:
         try:
             if self.main_space_flag:
                 if self.jump_flag == 0:
-                    self.height += next(self.jump_coords)
+                    self.height += int(next(self.jump_coords) * 0.5)
                 else:
-                    self.height -= next(self.jump_coords)
+                    self.height -= int(next(self.jump_coords) * 1.5)
         except StopIteration:
             if self.jump_flag == 0:
                 difference_height = vr.height_map[int(self.pos[0]), int(self.pos[1])][0] + 20 - self.height
-                last_jump_minus = (-1 + math.sqrt(1 + 2 * (-difference_height)))
-                self.jump_coords = iter(range(1, int(last_jump_minus)))
+                jump_down = (-1 + math.sqrt(1 + 2 * (-difference_height)))
+                self.jump_coords = list(range(1, int(jump_down))) + [2, 2, 1]
+                self.jump_coords = iter(self.jump_coords)
                 self.jump_flag = 1
             else:
                 self.jump_flag = 0
-                self.jump_coords = iter(range(7, 0, -1))
+                self.jump_coords = iter(range(12, 0, -1))
                 self.height = vr.height_map[int(self.pos[0]), int(self.pos[1])][0] + 20
                 self.main_space_flag = False
         finally:

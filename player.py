@@ -6,12 +6,11 @@ import pygame as pg
 import numpy as np
 from pyautogui import moveTo
 
-import voxel_render as vr
 import settings
 
 
 class Player:
-    def __init__(self):
+    def __init__(self, map):
         self.pos = np.array([50, 50], dtype=float)
         self.angle = math.pi / 4
         self.height = 270
@@ -19,6 +18,8 @@ class Player:
         self.angle_velocity = 0.1
         self.velocity = 2
         self.sensetivity = 0.002
+
+        self.map = map
 
         self.main_space_flag = False
         self.jump_flag = 0
@@ -39,7 +40,7 @@ class Player:
         if pressed_key[pg.K_ESCAPE]:
             exit()
 
-        if 0 < x and len(vr.height_map) > x and 0 < y and len(vr.height_map) > y:
+        if 0 < x and len(self.map.height_map) > x and 0 < y and len(self.map.height_map) > y:
 
             if pressed_key[pg.K_SPACE] or self.main_space_flag:
                 if pressed_key[pg.K_LSHIFT]:
@@ -47,16 +48,16 @@ class Player:
                 else:
                     self.velocity = 2
                 self.space_control()
-            elif pressed_key[pg.K_LSHIFT] and self.height == vr.height_map[int(x), int(y)][0] + 20:
-                self.height = vr.height_map[int(x), int(y)][0] + 20
+            elif pressed_key[pg.K_LSHIFT] and self.height == self.map.height_map[int(x), int(y)][0] + 20:
+                self.height = self.map.height_map[int(x), int(y)][0] + 20
                 self.height += 10
                 self.velocity = 0.5
-            elif pressed_key[pg.K_LSHIFT] and self.height != vr.height_map[int(x), int(y)][0] + 20:
-                self.height = vr.height_map[int(x), int(y)][0] + 20
+            elif pressed_key[pg.K_LSHIFT] and self.height != self.map.height_map[int(x), int(y)][0] + 20:
+                self.height = self.map.height_map[int(x), int(y)][0] + 20
                 self.height -= 10
                 self.velocity = 0.5
             else:
-                self.height = vr.height_map[int(x), int(y)][0] + 20
+                self.height = self.map.height_map[int(x), int(y)][0] + 20
                 self.velocity = 2
 
             if pressed_key[pg.K_w]:
@@ -81,15 +82,21 @@ class Player:
                     self.height -= int(next(self.jump_coords) * 1.5)
         except StopIteration:
             if self.jump_flag == 0:
-                difference_height = vr.height_map[int(self.pos[0]), int(self.pos[1])][0] + 20 - self.height
-                jump_down = (-1 + math.sqrt(1 + 2 * (-difference_height)))
-                self.jump_coords = list(range(1, int(jump_down))) + [2, 2, 1]
-                self.jump_coords = iter(self.jump_coords)
-                self.jump_flag = 1
+                difference_height = self.map.height_map[int(self.pos[0]), int(self.pos[1])][0] + 20 - self.height
+                try:
+                    jump_down = (-1 + math.sqrt(1 + 2 * (-difference_height)))
+                    self.jump_coords = list(range(1, int(jump_down))) + [2, 2, 1]
+                    self.jump_coords = iter(self.jump_coords)
+                    self.jump_flag = 1
+                except ValueError:
+                    self.height = self.map.height_map[int(self.pos[0]), int(self.pos[1])][0] + 20
+                finally:
+                    pass
+
             else:
                 self.jump_flag = 0
                 self.jump_coords = iter(range(12, 0, -1))
-                self.height = vr.height_map[int(self.pos[0]), int(self.pos[1])][0] + 20
+                self.height = self.map.height_map[int(self.pos[0]), int(self.pos[1])][0] + 20
                 self.main_space_flag = False
         finally:
             pass

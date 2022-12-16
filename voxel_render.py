@@ -5,18 +5,9 @@ from numba import njit
 import numpy as np
 
 
-height_map_img = pg.image.load('images/Rolling Hills Height Map.png')
-height_map = pg.surfarray.array3d(height_map_img)
-
-color_map_img = pg.image.load('images/Rolling Hills Bitmap 1025.png')
-color_map = pg.surfarray.array3d(color_map_img)
-
-map_height = len(height_map[0])
-map_width = len(height_map)
-
-
 class VoxelRender:
-    def __init__(self, app):
+    def __init__(self, app, map):
+        self.map = map
         self.app = app
         self.player = app.player
         self.fov = math.pi / 3
@@ -31,7 +22,9 @@ class VoxelRender:
         self.screen_array = ray_casting(self.screen_array, self.player.pos, self.player.angle,
                                          self.player.height, self.player.pitch, self.app.width,
                                          self.app.height, self.delta_angle, self.ray_distance,
-                                         self.height_fov, self.scale_height)
+                                         self.height_fov, self.scale_height,
+                                        (self.map.map_height, self.map.map_width, self.map.height_map,
+                                         self.map.color_map))
 
     def draw(self):
         self.app.screen.blit(pg.surfarray.make_surface(self.screen_array), (0, 0))
@@ -39,7 +32,7 @@ class VoxelRender:
 
 @njit(fastmath=True)
 def ray_casting(screen_array, player_pos, player_angle, player_height, player_pitch, screen_width,
-                screen_height, delta_angle, ray_distance, height_fov, scale_height):
+                screen_height, delta_angle, ray_distance, height_fov, scale_height, map):
 
     screen_array[:] = np.array([0, 0, 0])
     height_buffer = np.full(screen_width, screen_height)
@@ -52,13 +45,13 @@ def ray_casting(screen_array, player_pos, player_angle, player_height, player_pi
 
         for depth in range(1, ray_distance):
             x = int(player_pos[0] + depth * cos_a)
-            if 0 < x < map_width:
+            if 0 < x < map[1]:
                 y = int(player_pos[1] + depth * sin_a)
-                if 0 < y < map_height:
+                if 0 < y < map[0]:
 
                     #remove fish eye and get height on screen
                     depth *= math.cos(player_angle - ray_angle)
-                    height_on_screen = int((player_height - height_map[x, y][0] + 5) / depth * scale_height + player_pitch)
+                    height_on_screen = int((player_height - map[2][x, y][0] + 5) / depth * scale_height + player_pitch)
 
                     #remove unnecessary drawing
                     if not first_contact:
@@ -72,7 +65,7 @@ def ray_casting(screen_array, player_pos, player_angle, player_height, player_pi
                     #draw vert line
                     if height_on_screen < height_buffer[num_ray]:
                         for screen_y in range(height_on_screen, height_buffer[num_ray]):
-                            screen_array[num_ray, screen_y] = color_map[x, y]
+                            screen_array[num_ray, screen_y] = map[3][x, y]
                         height_buffer[num_ray] = height_on_screen
 
         ray_angle += delta_angle

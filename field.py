@@ -3,7 +3,7 @@ import pygame as pg
 
 class Map():
     def __init__(self):
-        self.number_of_map = 2
+        self.number_of_map = 1
         self.height_map_img = pg.image.load(f'images/maph_{self.number_of_map}.png')
         self.height_map = pg.surfarray.array3d(self.height_map_img)
 

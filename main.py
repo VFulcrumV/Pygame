@@ -1,5 +1,6 @@
+import math
+
 import pygame as pg
-import keyboard
 
 from player import Player
 from voxel_render import VoxelRender
@@ -27,7 +28,27 @@ class App:
         self.voxel_render.draw()
         self.fps(self.clock)
         self.config()
+        self.mini_map()
         pg.display.flip()
+
+    def mini_map(self):
+        mini_map = self.map.color_map_img
+        scale_player_pos = (self.player.pos[0] // 10, self.player.pos[1] // 10)
+        scale_map = pg.transform.scale(mini_map, (
+            mini_map.get_width() // 10,
+            mini_map.get_height() // 10))
+
+        player_mini = self.player.mini_map_ind
+        player_scale = pg.transform.scale(player_mini,
+                                          (player_mini.get_width() // 80,
+                                           player_mini.get_height() // 80))
+        player_scale = pg.transform.rotate(player_scale, 90 + (-180 * (self.player.angle) / math.pi))
+
+        scale_map.blit(player_scale,
+                       (scale_player_pos[0] - player_scale.get_width() * 0.5,
+                        scale_player_pos[1] - player_scale.get_width() * 0.5))
+        self.screen.blit(scale_map, (0, settings.HEIGHT - scale_map.get_height()))
+
 
     def config(self):
         config = pg.image.load('images//config.png')
@@ -41,22 +62,17 @@ class App:
                                             settings.HEIGHT // 2 - scale.get_height() // 2))
         self.screen.blit(scale, (scale_rect[0], scale_rect[1]))
 
-    def act_pressed_keys(self, key,  before_after_flag):
+    def act_pressed_keys(self, key):
         if 'key' in f'{key}':
-            k = chr(int(f'{key}'.split('key')[1].split(',')[0].split(' ')[1]))
-            if k in ['1', '2', '3'] and int(k) != self.map.number_of_map:
+            k = int(f'{key}'.split('key')[1].split(',')[0].split(' ')[1])
+            if len(str(k)) <= 3:
+                k = chr(k)
+            if k in ['1', '2', '3', '4'] and int(k) != self.map.number_of_map:
                 self.map.number_of_map = int(k)
                 self.map.change_map()
-
             if pg.key.get_pressed()[pg.K_r]:
                 app = App()
                 app.run()
-
-            if pg.key.get_pressed()[pg.K_SPACE] and self.player.main_space_flag and before_after_flag:
-                self.player.main_space_flag = True
-
-            if pg.key.get_pressed()[pg.K_SPACE] and not self.player.main_space_flag and not before_after_flag:
-                self.player.main_space_flag = True
 
 
     def fps(self, clock):
@@ -69,14 +85,16 @@ class App:
 
     def run(self):
         while True:
-            before_after_flag = 1
-            [self.act_pressed_keys(event, before_after_flag) for event in pg.event.get()]
+            [self.act_pressed_keys(event) for event in pg.event.get()]
+            if pg.key.get_pressed()[pg.K_SPACE] and self.player.main_space_flag:
+                self.player.main_space_flag = True
 
             self.update()
             self.draw()
-            before_after_flag = 0
 
-            [self.act_pressed_keys(event, before_after_flag) for event in pg.event.get()]
+            [self.act_pressed_keys(event) for event in pg.event.get()]
+            if pg.key.get_pressed()[pg.K_SPACE] and not self.player.main_space_flag:
+                self.player.main_space_flag = True
 
             self.clock.tick(60)
 

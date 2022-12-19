@@ -25,7 +25,7 @@ class Player:
 
         self.main_space_flag = False
         self.jump_flag = 0
-        self.jump_coords = iter(range(12, 0, -1))
+        self.jump_coords = iter(range(15, 0, -1))
 
     def update(self):
         if (int(self.pos[0]) <= 4 or int(self.pos[0]) >= 1020) or (int(self.pos[1]) <= 4 or int(self.pos[1]) >= 1020):
@@ -132,7 +132,7 @@ class Player:
 
             else:
                 self.jump_flag = 0
-                self.jump_coords = iter(range(12, 0, -1))
+                self.jump_coords = iter(range(15, 0, -1))
                 self.height = self.map.height_map[int(self.pos[0]), int(self.pos[1])][0] + 20
                 self.main_space_flag = False
         finally:

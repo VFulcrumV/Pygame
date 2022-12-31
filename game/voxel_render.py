@@ -6,17 +6,17 @@ import numpy as np
 
 
 class VoxelRender:
-    def __init__(self, app, map):
+    def __init__(self, game, map):
         self.map = map
-        self.app = app
-        self.player = app.player
+        self.app = game
+        self.player = game.player
         self.fov = math.pi / 3
         self.height_fov = self.fov / 2
-        self.num_rays = app.width
+        self.num_rays = game.width
         self.delta_angle = self.fov / self.num_rays
         self.ray_distance = 2000
         self.scale_height = 500
-        self.screen_array = np.full((app.width, app.height, 3), (0, 0, 0))
+        self.screen_array = np.full((game.width, game.height, 3), (0, 0, 0))
 
     def update(self):
         self.screen_array = ray_casting(self.screen_array, self.player.pos, self.player.angle,

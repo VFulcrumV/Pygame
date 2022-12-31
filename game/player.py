@@ -1,12 +1,9 @@
 import math
-from ctypes import POINTER, WINFUNCTYPE, windll
-from ctypes.wintypes import BOOL, HWND, RECT
 
 import pygame as pg
 import numpy as np
-from pyautogui import moveTo
 
-import settings
+import settings.settings as settings
 
 
 class Player:
@@ -17,15 +14,15 @@ class Player:
         self.pitch = 200
         self.angle_velocity = 0.1
         self.velocity = 2
-        self.sensetivity = 0.002
+        self.sensitivity = 0.002
 
-        self.mini_map_ind = pg.image.load(f'images/player_1.png')
+        self.mini_map_ind = pg.image.load(f'../images/player_minimap_indicator/player.png')
         self.map = map
         self.map_located = [0, 0]
 
         self.main_space_flag = False
         self.jump_flag = 0
-        self.jump_coords = iter(range(15, 0, -1))
+        self.jump_cords = iter(range(15, 0, -1))
 
     def update(self):
         if (int(self.pos[0]) <= 4 or int(self.pos[0]) >= 1020) or (int(self.pos[1]) <= 4 or int(self.pos[1]) >= 1020):
@@ -71,7 +68,7 @@ class Player:
         pressed_key = pg.key.get_pressed()
 
         if pressed_key[pg.K_ESCAPE]:
-            exit()
+            pass
 
         if pressed_key[pg.K_SPACE] or self.main_space_flag:
             if pressed_key[pg.K_LSHIFT]:
@@ -108,19 +105,19 @@ class Player:
         try:
             if self.main_space_flag:
                 if self.jump_flag == 0:
-                    self.height += int(next(self.jump_coords) * 0.5)
+                    self.height += int(next(self.jump_cords) * 0.5)
                 else:
-                    self.height -= int(next(self.jump_coords) * 1.5)
+                    self.height -= int(next(self.jump_cords) * 1.5)
         except StopIteration:
             if self.jump_flag == 0:
                 difference_height = self.map.height_map[int(self.pos[0]), int(self.pos[1])][0] + 20 - self.height
                 try:
                     jump_down = int((-1 + math.sqrt(1 + 2 * (-difference_height))))
                     if pg.key.get_pressed()[pg.K_LSHIFT]:
-                        self.jump_coords = list(range(1, jump_down))
+                        self.jump_cords = list(range(1, jump_down))
                     else:
-                        self.jump_coords = list(range(1, jump_down)) + [2, 2, 1]
-                    self.jump_coords = iter(self.jump_coords)
+                        self.jump_cords = list(range(1, jump_down)) + [2, 2, 1]
+                    self.jump_cords = iter(self.jump_cords)
                     self.jump_flag = 1
                 except ValueError:
                     if pg.key.get_pressed()[pg.K_LSHIFT]:
@@ -132,37 +129,17 @@ class Player:
 
             else:
                 self.jump_flag = 0
-                self.jump_coords = iter(range(15, 0, -1))
+                self.jump_cords = iter(range(15, 0, -1))
                 self.height = self.map.height_map[int(self.pos[0]), int(self.pos[1])][0] + 20
                 self.main_space_flag = False
         finally:
             pass
 
     def mouse_control(self):
-        if pg.mouse.get_focused() :
-            difference_x = pg.mouse.get_pos()[0] - settings.HALF_WIDTH
-            difference_y = pg.mouse.get_pos()[1] - settings.HALF_HEIGHT
-            pg.mouse.set_pos((settings.HALF_WIDTH, settings.HALF_HEIGHT))
-            self.angle += difference_x * self.sensetivity
-            if self.pitch >= -530:
-                self.pitch -= difference_y
-            elif difference_y <= 0:
-                self.pitch -= difference_y
-        else:
-            window_x, window_y = self.get_window_coords()
-            try:
-                moveTo(window_x + settings.HALF_WIDTH + pg.SCALED, window_y + settings.HALF_HEIGHT + pg.SCALED // 2)
-            except Exception:
-                pass
-            finally:
-                pass
-
-    def get_window_coords(self):
-        hwnd = pg.display.get_wm_info()['window']
-        prototype = WINFUNCTYPE(BOOL, HWND, POINTER(RECT))
-        paramflags = (1, 'hwnd'), (2, 'lprect')
-
-        GetWindowRect = prototype(('GetWindowRect', windll.user32), paramflags)
-
-        rect = GetWindowRect(hwnd)
-        return rect.top, rect.left
+        difference_x = pg.mouse.get_pos()[0] - settings.HALF_WIDTH
+        difference_y = pg.mouse.get_pos()[1] - settings.HALF_HEIGHT
+        self.angle += difference_x * self.sensitivity
+        if self.pitch >= -530:
+            self.pitch -= difference_y
+        elif difference_y <= 0:
+            self.pitch -= difference_y

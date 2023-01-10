@@ -4,7 +4,8 @@ from threading import Thread
 import pygame as pg
 
 from client_server import client, server
-from game.game import Game
+import game_directory.game as game
+import game_directory.voxel_render as voxel_render
 from lobby.main_lobby import MainLobby
 
 
@@ -33,7 +34,7 @@ class App:
 
     def create_client(self):
         try:
-            self.switch = 'game'
+            self.switch = 'game_directory'
             self.client = client.Client('26.17.241.162', 7000)
             self.client.connect()
         except Exception:
@@ -50,7 +51,7 @@ class App:
             self.switch = 'lobby'
 
     def start_game(self):
-        self.game = Game(self.client)
+        self.game = game.Game(self.client)
         self.switch = self.game.run()
         self.game = None
 
@@ -70,7 +71,8 @@ if __name__ == '__main__':
             app.create_client()
         elif app.switch == 'server' and not app.server_answer:
             app.run_server()
-        elif app.switch == 'game':
+        elif app.switch == 'game_directory':
             app.start_game()
         elif app.switch == 'exit':
             app.exit()
+            sys.exit()

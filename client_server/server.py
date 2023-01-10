@@ -94,7 +94,6 @@ class Server:
                     this_user = self.get_user(addr[0])
                     if this_user:
                         self.client_return.append(data)
-                        print(self.client_return)
                         answer = str(self.client_return)
                         self.sender(user, this_user.key, answer)
                         self.client_return = []

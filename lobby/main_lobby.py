@@ -32,7 +32,7 @@ class MainLobby:
         self.exit_button = lobby_interface.Button(self.screen, 'EXIT',
                                                   ('lightgray', 'red'), (0.2, 0.15), (1, 1.78))
 
-        self.background = lobby_interface.Background(self.screen, '../images/background/menu.jpg')
+        self.background = lobby_interface.Background(self.screen, '../images/background/menu.png')
 
         self.present_label = lobby_interface.Label(self.screen, 'HAHA GUN MAKES PEW-PEW!', ['random'], 100, (1, 0.3))
 

@@ -77,6 +77,6 @@ class Background:
         self.menu_background = pg.image.load(filename).convert()
 
     def draw(self):
-        self.screen.blit(self.menu_background, (0, 0), (self.x % settings.WIDTH, settings.HEIGHT,
+        self.screen.blit(self.menu_background, (0, 0), (self.x % settings.WIDTH, 0,
                                                         settings.LOBBY_WIDTH, settings.LOBBY_HEIGHT))
         self.x += 1

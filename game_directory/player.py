@@ -8,9 +8,9 @@ import settings.settings as settings
 
 class Player:
     def __init__(self, map):
-        self.pos = np.array([5, 5], dtype=float)
+        self.x, self.y = self.pos = np.array([5, 5], dtype=float)
         self.angle = math.pi / 4
-        self.height = 270
+        self.height = 0
         self.pitch = 200
         self.angle_velocity = 0.1
         self.velocity = 2
@@ -18,32 +18,32 @@ class Player:
 
         self.mini_map_ind = pg.image.load(f'../images/player_minimap_indicator/player.png')
         self.map = map
-        self.map_located = [0, 0]
+        self.map_located = np.array([0, 0], dtype=int)
 
         self.main_space_flag = False
-        self.jump_flag = 0
+        self.jump_flag = False
         self.jump_cords = iter(range(15, 0, -1))
 
     def update(self):
-        if (int(self.pos[0]) <= 4 or int(self.pos[0]) >= 1020) or (int(self.pos[1]) <= 4 or int(self.pos[1]) >= 1020):
-            self.located()
+        self.located()
         self.keys_control()
         self.mouse_control()
 
     def located(self):
-        if int(self.pos[1]) >= 1020:
-            self.map_located[1] = (self.map_located[1] + 1) % 2
-            self.pos[1] = 5
-        elif int(self.pos[1]) <= 4:
-            self.map_located[1] = (self.map_located[1] + 1) % 2
-            self.pos[1] = 1019
-        elif int(self.pos[0]) >= 1020:
-            self.map_located[0] = (self.map_located[0] + 1) % 2
-            self.pos[0] = 5
-        elif int(self.pos[0]) <= 4:
-            self.map_located[0] = (self.map_located[0] + 1) % 2
-            self.pos[0] = 1019
-        self.go_to_another_map()
+        if (int(self.pos[0]) <= 4 or int(self.pos[0]) >= 1020) or (int(self.pos[1]) <= 4 or int(self.pos[1]) >= 1020):
+            if int(self.pos[1]) >= 1020:
+                self.map_located[1] = (self.map_located[1] + 1) % 2
+                self.pos[1] = 5
+            elif int(self.pos[1]) <= 4:
+                self.map_located[1] = (self.map_located[1] + 1) % 2
+                self.pos[1] = 1019
+            elif int(self.pos[0]) >= 1020:
+                self.map_located[0] = (self.map_located[0] + 1) % 2
+                self.pos[0] = 5
+            elif int(self.pos[0]) <= 4:
+                self.map_located[0] = (self.map_located[0] + 1) % 2
+                self.pos[0] = 1019
+            self.go_to_another_map()
 
     def go_to_another_map(self):
         if self.map_located == [0, 0]:
@@ -104,12 +104,12 @@ class Player:
     def space_control(self):
         try:
             if self.main_space_flag:
-                if self.jump_flag == 0:
+                if not self.jump_flag:
                     self.height += int(next(self.jump_cords) * 0.5)
                 else:
                     self.height -= int(next(self.jump_cords) * 1.5)
         except StopIteration:
-            if self.jump_flag == 0:
+            if not self.jump_flag:
                 difference_height = self.map.height_map[int(self.pos[0]), int(self.pos[1])][0] + 20 - self.height
                 try:
                     jump_down = int((-1 + math.sqrt(1 + 2 * (-difference_height))))
@@ -118,7 +118,7 @@ class Player:
                     else:
                         self.jump_cords = list(range(1, jump_down)) + [2, 2, 1]
                     self.jump_cords = iter(self.jump_cords)
-                    self.jump_flag = 1
+                    self.jump_flag = True
                 except ValueError:
                     if pg.key.get_pressed()[pg.K_LSHIFT]:
                         pass
@@ -128,12 +128,10 @@ class Player:
                     pass
 
             else:
-                self.jump_flag = 0
+                self.jump_flag = False
                 self.jump_cords = iter(range(15, 0, -1))
                 self.height = self.map.height_map[int(self.pos[0]), int(self.pos[1])][0] + 20
                 self.main_space_flag = False
-        finally:
-            pass
 
     def mouse_control(self):
         difference_x = pg.mouse.get_pos()[0] - settings.HALF_WIDTH
@@ -143,3 +141,4 @@ class Player:
             self.pitch -= difference_y
         elif difference_y <= 0:
             self.pitch -= difference_y
+print()

@@ -3,27 +3,33 @@ import math
 import pygame as pg
 
 import settings.settings as settings
+from ecs.ecs_components import *
 
 
 class GameInterface:
-    def __init__(self, map, player, screen):
+    def __init__(self, map, player, screen, manager):
         self.map = map
         self.player = player
         self.screen = screen
+        self.manager = manager
         self.answer = None
 
     def draw_mini_map(self):
-        mini_map = self.map.color_map_img
-        scale_player_pos = (self.player.pos[0] // 10, self.player.pos[1] // 10)
+        pos = self.manager.get(PositionComponent, self.player)
+        ind = self.manager.get(MinimapIndicatorComponent, self.player)
+        ang = self.manager.get(AngleComponent, self.player)
+
+        mini_map = self.manager.get(ColorMapImageComponent, self.map).color_map_image
+        scale_player_pos = (pos.position_x // 10, pos.position_y // 10)
         scale_map = pg.transform.scale(mini_map, (
             mini_map.get_width() // 10,
             mini_map.get_height() // 10))
 
-        player_mini = self.player.mini_map_ind
+        player_mini = ind.minimap_indicator
         player_scale = pg.transform.scale(player_mini,
                                           (player_mini.get_width() // 80,
                                            player_mini.get_height() // 80))
-        player_scale = pg.transform.rotate(player_scale, 90 + (-180 * (self.player.angle) / math.pi))
+        player_scale = pg.transform.rotate(player_scale, 90 + (-180 * (ang.angle) / math.pi))
 
         scale_map.blit(player_scale,
                        (scale_player_pos[0] - player_scale.get_width() * 0.5,
@@ -42,24 +48,26 @@ class GameInterface:
                                             settings.HEIGHT // 2 - scale.get_height() // 2))
         self.screen.blit(scale, (scale_rect[0], scale_rect[1]))
 
+    def draw_weapon(self):
+        ws = self.manager.get(WeaponSpriteComponent, self.player)
+        ws.weapon_sprite.set_colorkey((255, 255, 255))
+        self.screen.blit(ws.weapon_sprite, (0, 0))
+
     def draw_fps(self, clock):
+        pos = self.manager.get(PositionComponent, self.player)
+        hei = self.manager.get(HeightComponent, self.player)
+
         fps_font = pg.font.SysFont('Arial', 15, bold=True)
         display_fps = str(int(clock.get_fps()))
         render_fps = fps_font.render(display_fps, True, 'green')
-        pos = int(self.player.pos[0]), int(self.player.pos[1])
-        render_height = fps_font.render(str(f'{self.player.height} {pos}'), True, 'blue')
+        render_height = fps_font.render(str(f'{int(hei.height)} {int(pos.position_x), int(pos.position_y)}'), True, 'blue')
         self.screen.blit(render_fps, (10, 5))
         self.screen.blit(render_height, (10, 20))
 
-    def response_pressed_keys(self, event):
-        if 'key' in f'{event}':
-            k = int(f'{event}'.split('key')[1].split(',')[0].split(' ')[1])
-            if len(str(k)) <= 3:
-                if chr(k) in ['1', '2', '3', '4'] and int(chr(k)) != self.map.number_of_map:
-                    self.map.number_of_map = int(chr(k))
-                    self.map.change_map()
-                if k == pg.K_ESCAPE:
-                    self.answer = 'lobby'
+    def response_pressed_keys(self):
+        pressed_key = pg.key.get_pressed()
+        if pressed_key[pg.K_ESCAPE]:
+            self.answer = 'lobby'
         return self.answer
 
     def update_mouse(self):

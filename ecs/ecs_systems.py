@@ -165,14 +165,18 @@ class FirstPersonWeaponSystem(System):
 
             for event in events:
                 if event.type == pg.MOUSEBUTTONDOWN:
-                    ff.fire_flag = True
+                    if event.button == 1:
+                        ff.fire_flag = True
+                if event.type == pg.MOUSEBUTTONUP:
+                    if event.button == 1:
+                        ff.fire_flag = False
 
-            if ff.fire_flag:
+
+            if ff.fire_flag or ws.animation_counter != 0:
                 ws.weapon_sprite = ws.weapon_animation[0]
                 ws.weapon_animation.rotate()
                 ws.animation_counter += 1
             if ws.animation_counter == 13:
-                ff.fire_flag = False
                 ws.animation_counter = 0
 
             surface.blit(ws.weapon_sprite, (200, 200))

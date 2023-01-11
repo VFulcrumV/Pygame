@@ -35,7 +35,7 @@ class App:
     def create_client(self):
         try:
             self.switch = 'game_directory'
-            self.client = client.Client('26.17.241.162', 7000)
+            self.client = client.Client('26.35.223.104', 7000)
             self.client.connect()
         except Exception:
             self.switch = 'lobby'
@@ -43,7 +43,7 @@ class App:
     def run_server(self):
         try:
             self.switch = 'client'
-            self.server = server.Server('26.17.241.162', 7000)
+            self.server = server.Server('26.35.223.104', 7000)
             Thread(target=self.server.start_server).start()
             self.server_answer = True
         except Exception as e:

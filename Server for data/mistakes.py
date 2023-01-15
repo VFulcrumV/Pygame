@@ -7,6 +7,7 @@ app = yadisk.YaDisk(token="y0_AgAAAABVMeAeAAkABAAAAADZoPpcdW_KymU6SwyKRxaGwRznNy
 
 
 def main():
+    app.download('data.json', 'js.json')
     number = int(input())
     num1, num2, num3 = input().split('.')
     new_data = {"id": number, "coords": [int(num1), int(num2), int(num3)]}
@@ -24,11 +25,10 @@ def main():
 
 
 try:
-    app.download('data.json', 'js.json')
     main()
 except yadisk.exceptions.PathNotFoundError:
+    app.upload('js.json', 'data.json')
     time.sleep(5)
-    app.download('data.json', 'js.json')
     main()
 
 

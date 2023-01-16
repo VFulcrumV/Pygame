@@ -29,6 +29,7 @@ class App:
         self.lobby = MainLobby(self.client, self.server)
         if self.server is not None:
             self.server.server_answer = False
+            self.client.cli.close()
         self.switch = self.lobby.run()
         self.lobby = None
 

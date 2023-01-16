@@ -18,12 +18,14 @@ class Game:
 
         self.player = PlayerEntity(self.manager).player
         self.map = self.manager.get(MapComponent, self.player).map
+        self.enemy = EnemyEntity(self.manager, 0.7)
 
         self.manager.add_system(MouseControlSystem)
         self.manager.add_system(LocatedSystem)
         self.manager.add_system(KeysControlSystem)
         self.manager.add_system(GravitationSystem)
         self.manager.add_system(FirstPersonWeaponSystem)
+        self.manager.add_system(EnemySpriteSystem)
 
         self.game_interface = game_interface.GameInterface(self.map, self.player, self.screen, self.manager)
 
@@ -64,6 +66,8 @@ class Game:
         while self.game_run:
             self.update()
             self.draw()
+
+            self.client.listen(self.player_data)
 
             self.client_return = []
             self.player_data = []

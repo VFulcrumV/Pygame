@@ -20,6 +20,7 @@ class PlayerEntity:
     def __init__(self, manager):
         self.manager = manager
         self.player = self.manager.create_entity()
+
         pos = self.manager.assign(c.PositionComponent, self.player)
         pos.position = (15, 15)
         pos.position_x, pos.position_y = pos.position[0], pos.position[1]
@@ -63,6 +64,8 @@ class PlayerEntity:
 
         ff = self.manager.assign(c.FireFlagComponent, self.player)
 
+        pf = self.manager.assign(c.PlayerFlagComponent, self.player)
+
         m = self.manager.assign(c.MapComponent, self.player)
         m.map = MapEntity(manager).map
 
@@ -92,3 +95,42 @@ class MapEntity:
 
         mw = self.manager.assign(c.MapWidthComponent, self.map)
         mw.map_width = len(hma.height_map_array_3d)
+
+
+class EnemyEntity:
+    def __init__(self, manager, scale):
+        self.manager = manager
+        self.enemy = self.manager.create_entity()
+
+        pos = self.manager.assign(c.PositionComponent, self.enemy)
+        pos.position = (280, 350)
+        pos.position_x, pos.position_y = pos.position[0], pos.position[1]
+
+        ang = self.manager.assign(c.AngleComponent, self.enemy)
+        ang.angle = math.pi / 4
+
+        hei = self.manager.assign(c.HeightComponent, self.enemy)
+        hei.height = 200
+
+        mi = self.manager.assign(c.MinimapIndicatorComponent, self.enemy)
+        mi.minimap_indicator = pg.image.load(f'../images/player_minimap_indicator/player_1.png')
+
+        jf = self.manager.assign(c.JumpFlagComponent, self.enemy)
+        jf.jump_flag = False
+
+        gr = self.manager.assign(c.GravitationForceComponent, self.enemy)
+        gr.gravitation = 0.7
+
+        jv = self.manager.assign(c.JumpVelocity, self.enemy)
+        jv.jump_velocity = 7
+
+        ff = self.manager.assign(c.FireFlagComponent, self.enemy)
+
+        es = self.manager.assign(c.EntitySpriteComponent, self.enemy)
+        es.entity_sprite = pg.image.load(f'../images/sprites/player/player_fire.png')
+
+        ss = self.manager.assign(c.SpriteScaleComponent, self.enemy)
+        ss.sprite_scale = scale
+
+        ssh = self.manager.assign(c.SpriteShiftComponent, self.enemy)
+        ssh.sprite_shift = 1.6

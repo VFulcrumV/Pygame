@@ -120,3 +120,22 @@ class WeaponSpriteComponent:
 @dataclass
 class FireFlagComponent:
     fire_flag: bool = False
+
+@dataclass
+class EntitySpriteComponent:
+    entity_sprite: pg.image = None
+
+
+@dataclass
+class PlayerFlagComponent:
+    pass
+
+
+@dataclass
+class SpriteScaleComponent:
+    sprite_scale: float = None
+
+
+@dataclass
+class SpriteShiftComponent:
+    sprite_shift: float = None

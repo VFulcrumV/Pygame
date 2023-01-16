@@ -26,6 +26,8 @@ class MouseControlSystem(System):
             elif difference_y <= 0:
                 pit.pitch -= difference_y
 
+            print(ang.angle, math.pi / 4)
+
 
 class GravitationSystem(System):
     def on_update(self, surface, deltatime, events):
@@ -180,3 +182,57 @@ class FirstPersonWeaponSystem(System):
                 ws.animation_counter = 0
 
             surface.blit(ws.weapon_sprite, (200, 200))
+
+
+class EnemySpriteSystem(System):
+    def on_update(self, surface, deltatime, events):
+        player_pos = None
+        player_ang = None
+
+        for entity in self.manager.query([PositionComponent,
+                                          PlayerFlagComponent,
+                                          AngleComponent]):
+            player_pos = self.manager.get(PositionComponent, entity).position
+            player_ang = self.manager.get(AngleComponent, entity).angle
+
+        for entity in self.manager.query([PositionComponent,
+                                          AngleComponent,
+                                          EntitySpriteComponent,
+                                          HeightComponent,
+                                          AngleComponent,
+                                          SpriteScaleComponent,
+                                          SpriteShiftComponent]):
+
+            sprite_pos = self.manager.get(PositionComponent, entity).position
+            entity_scale = self.manager.get(SpriteScaleComponent, entity).sprite_scale
+            sprite_shift = self.manager.get(SpriteShiftComponent, entity).sprite_shift
+            entity_sprite = self.manager.get(EntitySpriteComponent, entity).entity_sprite
+
+            dx, dy = sprite_pos[0] - player_pos[0], sprite_pos[1] - player_pos[1]
+            distance_to_sprite = math.sqrt(dx ** 2 + dy ** 2)
+
+            theta = math.atan2(dy, dx)
+            gamma = theta - player_ang
+
+            if dx > 0 and 180 <= math.degrees(player_ang) <= 360 or dx < 0 and dy < 0:
+                gamma += set.DOUBLE_PI
+
+            delta_rays = int(gamma / set.DELTA_ANGLE)
+            current_ray = set.CENTRAL_RAY + delta_rays
+
+            distance_to_sprite *= math.cos(set.HALF_FOV - current_ray * set.DELTA_ANGLE)
+
+            fake_ray = current_ray + set.FAKE_RAYS
+
+            if 0 <= fake_ray <= set.WIDTH - 1 + 2 * set.FAKE_RAYS:
+                proj_height = min(int(set.PR_CF / distance_to_sprite * entity_scale), 2 * set.HEIGHT)
+                half_proj_height = proj_height // 2
+                shift = half_proj_height * sprite_shift
+
+                #НЕЗАБЫТЬ НЕ СТАТИЧНЫЕ СПРАЙТЫ
+
+                sprite_pos = (current_ray, set.HALF_HEIGHT)
+
+                surface.blit(entity_sprite, sprite_pos)
+
+

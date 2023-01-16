@@ -4,6 +4,7 @@ from numba import njit
 import numpy as np
 
 from ecs.ecs_components import *
+import settings.settings as set
 
 
 class VoxelRender:
@@ -12,10 +13,10 @@ class VoxelRender:
         self.player = game.player
         self.map = game.map
         self.manager = manager
-        self.fov = math.pi / 3
+        self.fov = set.FOV
         self.height_fov = self.fov / 2
         self.num_rays = game.width
-        self.delta_angle = self.fov / self.num_rays
+        self.delta_angle = set.DELTA_ANGLE
         self.ray_distance = 1500
         self.scale_height = 500
         self.screen_array = np.full((game.width, game.height, 3), (0, 0, 0))

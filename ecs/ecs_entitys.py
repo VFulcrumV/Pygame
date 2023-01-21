@@ -35,7 +35,7 @@ class PlayerEntity:
         hei.height = 200
 
         anv = self.manager.assign(c.AngleVelocityComponent, self.player)
-        anv.angle_velocity = 0.1
+        anv.angle_velocity = 1
 
         vel = self.manager.assign(c.VelocityComponent, self.player)
         vel.velocity = 2
@@ -44,7 +44,7 @@ class PlayerEntity:
         sen.sensitivity = 0.002
 
         mi = self.manager.assign(c.MinimapIndicatorComponent, self.player)
-        mi.minimap_indicator = pg.image.load(f'../images/player_minimap_indicator/player_1.png')
+        mi.minimap_indicator = pg.image.load(f'images/player_minimap_indicator/player_1.png')
 
         jf = self.manager.assign(c.JumpFlagComponent, self.player)
         jf.jump_flag = False
@@ -56,10 +56,10 @@ class PlayerEntity:
         jv.jump_velocity = 7
 
         ws = self.manager.assign(c.WeaponSpriteComponent, self.player)
-        ws.weapon_sprite = pg.image.load(f'../images/sprites/ak_47/animation/0.png')
-        ws.weapon_sprite_base = pg.image.load(f'../images/sprites/ak_47/base/0.png')
+        ws.weapon_sprite = pg.image.load(f'images/sprites/ak_47/animation/0.png')
+        ws.weapon_sprite_base = pg.image.load(f'images/sprites/ak_47/base/0.png')
         ws.weapon_animation = deque(
-            [pg.image.load(f'../images/sprites/ak_47/animation/{i}.png').convert_alpha() for i in range(24, -1, -2)]
+            [pg.image.load(f'images/sprites/ak_47/animation/{i}.png').convert_alpha() for i in range(24, -1, -2)]
         )
 
         ff = self.manager.assign(c.FireFlagComponent, self.player)
@@ -79,13 +79,13 @@ class MapEntity:
         mn.map_number = 1
 
         hmi = self.manager.assign(c.HeightMapImageComponent, self.map)
-        hmi.height_map_image = pg.image.load(f'../images/maps/height_maps/maph_{mn.map_number}.png')
+        hmi.height_map_image = pg.image.load(f'images/maps/height_maps/maph_{mn.map_number}.png')
 
         hma = self.manager.assign(c.HeightMapArray3DComponent, self.map)
         hma.height_map_array_3d = pg.surfarray.array3d(hmi.height_map_image)
 
         cmi = self.manager.assign(c.ColorMapImageComponent, self.map)
-        cmi.color_map_image = pg.image.load(f'../images/maps/color_maps/map_{mn.map_number}.png')
+        cmi.color_map_image = pg.image.load(f'images/maps/color_maps/map_{mn.map_number}.png')
 
         cma = self.manager.assign(c.ColorMapArray3DComponent, self.map)
         cma.color_map_array_3d = pg.surfarray.array3d(cmi.color_map_image)
@@ -113,7 +113,7 @@ class EnemyEntity:
         hei.height = 200
 
         mi = self.manager.assign(c.MinimapIndicatorComponent, self.enemy)
-        mi.minimap_indicator = pg.image.load(f'../images/player_minimap_indicator/player_1.png')
+        mi.minimap_indicator = pg.image.load(f'images/player_minimap_indicator/player_1.png')
 
         jf = self.manager.assign(c.JumpFlagComponent, self.enemy)
         jf.jump_flag = False
@@ -127,7 +127,7 @@ class EnemyEntity:
         ff = self.manager.assign(c.FireFlagComponent, self.enemy)
 
         es = self.manager.assign(c.EntitySpriteComponent, self.enemy)
-        es.entity_sprite = pg.image.load(f'../images/sprites/player/player_fire.png')
+        es.entity_sprite = pg.image.load(f'images/sprites/player/player_fire1.png')
 
         ss = self.manager.assign(c.SpriteScaleComponent, self.enemy)
         ss.sprite_scale = scale

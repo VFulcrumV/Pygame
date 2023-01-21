@@ -14,6 +14,10 @@ class GameInterface:
         self.manager = manager
         self.answer = None
 
+        self.image_of_config = self.load_config()
+
+        self.font = pg.font.SysFont('Arial', 15, bold=True)
+
     def draw_mini_map(self):
         pos = self.manager.get(PositionComponent, self.player)
         ind = self.manager.get(MinimapIndicatorComponent, self.player)
@@ -37,16 +41,21 @@ class GameInterface:
         self.screen.blit(scale_map, (0, settings.HEIGHT - scale_map.get_height()))
 
     def draw_config(self):
-        config = pg.image.load('../images/config/config.png')
+        self.screen.blit(self.image_of_config[0], (self.image_of_config[1][0], self.image_of_config[1][1]))
+
+    @staticmethod
+    def load_config():
+        config = pg.image.load('images/config/config.png')
         config.set_colorkey((255, 255, 255))
         scale = pg.transform.rotate(config, 180)
         scale = pg.transform.scale(scale, (
             config.get_width() // 100,
             config.get_height() // 100
         ))
-        scale_rect = scale.get_rect(center=(settings.WIDTH // 2 - scale.get_width() // 2,
-                                            settings.HEIGHT // 2 - scale.get_height() // 2))
-        self.screen.blit(scale, (scale_rect[0], scale_rect[1]))
+        scale_rect = scale.get_rect(center=(settings.WIDTH // 2,
+                                            settings.HEIGHT // 2))
+
+        return scale, scale_rect
 
     def draw_weapon(self):
         ws = self.manager.get(WeaponSpriteComponent, self.player)
@@ -56,20 +65,18 @@ class GameInterface:
     def draw_fps(self, clock):
         pos = self.manager.get(PositionComponent, self.player)
         hei = self.manager.get(HeightComponent, self.player)
+        pitch = self.manager.get(PitchComponent, self.player)
 
-        fps_font = pg.font.SysFont('Arial', 15, bold=True)
         display_fps = str(int(clock.get_fps()))
-        render_fps = fps_font.render(display_fps, True, 'green')
-        render_height = fps_font.render(str(f'{int(hei.height)} {int(pos.position_x), int(pos.position_y)}'), True, 'blue')
+        render_fps = self.font.render(display_fps, True, 'green')
+        render_height = self.font.render(str(f'{int(hei.height)} {int(pos.position_x), int(pos.position_y)}'), True, 'blue')
+        render_pitch = self.font.render(str(f'{pitch.pitch}'), True, 'red')
         self.screen.blit(render_fps, (10, 5))
         self.screen.blit(render_height, (10, 20))
+        self.screen.blit(render_pitch, (10, 35))
 
     def response_pressed_keys(self):
         pressed_key = pg.key.get_pressed()
         if pressed_key[pg.K_ESCAPE]:
             self.answer = 'lobby'
         return self.answer
-
-    def update_mouse(self):
-        if pg.mouse.get_focused():
-            pg.mouse.set_pos((settings.HALF_WIDTH, settings.HALF_HEIGHT))

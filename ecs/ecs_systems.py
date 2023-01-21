@@ -16,17 +16,18 @@ class MouseControlSystem(System):
                                           PitchComponent]):
 
             ang = self.manager.get(AngleComponent, entity)
-            sen = self.manager.get(SensitivityComponent, entity)
+            sen = self.manager.get(SensitivityComponent, entity).sensitivity
             pit = self.manager.get(PitchComponent, entity)
+            anv = self.manager.get(AngleVelocityComponent, entity).angle_velocity
 
-            ang.angle += difference_x * sen.sensitivity
+            ang.angle += sen * difference_x
 
-            if pit.pitch >= -530:
-                pit.pitch -= difference_y
-            elif difference_y <= 0:
-                pit.pitch -= difference_y
+            ang.angle %= set.DOUBLE_PI
 
-            print(ang.angle, math.pi / 4)
+            if pit.pitch >= -530 or difference_y <= 0:
+                pit.pitch -= anv * difference_y
+
+            pg.mouse.set_pos(set.HALF_WIDTH, set.HALF_HEIGHT)
 
 
 class GravitationSystem(System):
@@ -109,6 +110,7 @@ class LocatedSystem(System):
         for entity in self.manager.query([PositionComponent,
                                           MapComponent]):
             pos = self.manager.get(PositionComponent, entity)
+            hei = self.manager.get(HeightComponent, entity)
             x = pos.position_x
             y = pos.position_y
             m = self.manager.get(MapComponent, entity).map
@@ -145,16 +147,18 @@ class LocatedSystem(System):
             if (int(y) <= 4 or int(y) >= 1020) or (int(x) <= 4 or int(x) >= 1020):
 
                 hmi = self.manager.get(HeightMapImageComponent, m)
-                hmi.height_map_image = pg.image.load(f'../images/maps/height_maps/maph_{mn.map_number}.png')
+                hmi.height_map_image = pg.image.load(f'images/maps/height_maps/maph_{mn.map_number}.png')
 
                 hma = self.manager.get(HeightMapArray3DComponent, m)
                 hma.height_map_array_3d = pg.surfarray.array3d(hmi.height_map_image)
 
                 cmi = self.manager.get(ColorMapImageComponent, m)
-                cmi.color_map_image = pg.image.load(f'../images/maps/color_maps/map_{mn.map_number}.png')
+                cmi.color_map_image = pg.image.load(f'images/maps/color_maps/map_{mn.map_number}.png')
 
                 cma = self.manager.get(ColorMapArray3DComponent, m)
                 cma.color_map_array_3d = pg.surfarray.array3d(cmi.color_map_image)
+
+                hei.height = hma.height_map_array_3d[int(pos.position_x), int(pos.position_y)][0] + 20
 
 
 class FirstPersonWeaponSystem(System):
@@ -188,15 +192,19 @@ class EnemySpriteSystem(System):
     def on_update(self, surface, deltatime, events):
         player_pos = None
         player_ang = None
+        player_pitch = None
+        player_height = None
+        height_map = None
 
-        for entity in self.manager.query([PositionComponent,
-                                          PlayerFlagComponent,
-                                          AngleComponent]):
+        for entity in self.manager.query([PlayerFlagComponent]):
             player_pos = self.manager.get(PositionComponent, entity).position
             player_ang = self.manager.get(AngleComponent, entity).angle
+            player_pitch = self.manager.get(PitchComponent, entity).pitch
+            player_height = self.manager.get(HeightComponent, entity).height
+            m = self.manager.get(MapComponent, entity).map
+            height_map = self.manager.get(HeightMapArray3DComponent, m).height_map_array_3d
 
         for entity in self.manager.query([PositionComponent,
-                                          AngleComponent,
                                           EntitySpriteComponent,
                                           HeightComponent,
                                           AngleComponent,
@@ -208,8 +216,12 @@ class EnemySpriteSystem(System):
             sprite_shift = self.manager.get(SpriteShiftComponent, entity).sprite_shift
             entity_sprite = self.manager.get(EntitySpriteComponent, entity).entity_sprite
 
-            dx, dy = sprite_pos[0] - player_pos[0], sprite_pos[1] - player_pos[1]
-            distance_to_sprite = math.sqrt(dx ** 2 + dy ** 2)
+            x = int(sprite_pos[0])
+            y = int(sprite_pos[1])
+
+            dx, dy, dz = sprite_pos[0] - player_pos[0], sprite_pos[1] - player_pos[1], \
+                player_height - height_map[x, y][0]
+            distance_to_sprite = math.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
 
             theta = math.atan2(dy, dx)
             gamma = theta - player_ang
@@ -224,15 +236,21 @@ class EnemySpriteSystem(System):
 
             fake_ray = current_ray + set.FAKE_RAYS
 
-            if 0 <= fake_ray <= set.WIDTH - 1 + 2 * set.FAKE_RAYS:
-                proj_height = min(int(set.PR_CF / distance_to_sprite * entity_scale), 2 * set.HEIGHT)
-                half_proj_height = proj_height // 2
-                shift = half_proj_height * sprite_shift
+            if 0 + 1 - 2 * set.FAKE_RAYS <= fake_ray <= set.WIDTH - 1 + 2 * set.FAKE_RAYS:
+                project_height = min(int(set.PR_CF / distance_to_sprite * entity_scale), 2 * set.HEIGHT)
 
-                #НЕЗАБЫТЬ НЕ СТАТИЧНЫЕ СПРАЙТЫ
+                half_project_height = project_height // 2
+                shift = half_project_height * sprite_shift
 
-                sprite_pos = (current_ray, set.HALF_HEIGHT)
+                ray_angle = player_ang - set.FOV / 2
 
-                surface.blit(entity_sprite, sprite_pos)
+                sin_a = math.sin(player_ang)
+                cos_a = math.cos(player_ang)
 
+                distance_to_sprite *= math.cos(player_ang - ray_angle)
+                current_height = int((player_height - height_map[x, y][0]) / distance_to_sprite * 500 + player_pitch) - 210
 
+                sprite_pos = (current_ray * set.SCALE - half_project_height, current_height - half_project_height + shift)
+                sprite = pg.transform.scale(entity_sprite, (project_height, project_height))
+
+                surface.blit(sprite, sprite_pos)

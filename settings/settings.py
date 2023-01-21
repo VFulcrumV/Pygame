@@ -10,7 +10,7 @@ TILE = 100
 FOV = math.pi / 3
 HALF_FOV = FOV / 2
 
-DIST = WIDTH / (2 * math.tan(HALF_WIDTH))
+DIST = WIDTH / (2 * math.tan(HALF_FOV))
 PR_CF = 3 * DIST * TILE
 DOUBLE_PI = math.pi * 2
 DELTA_ANGLE = FOV / WIDTH

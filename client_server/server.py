@@ -32,6 +32,9 @@ class Server:
         self.users = []
         self.client_return = []
 
+        self.server_answer = True
+        self.thread = None
+
     def get_user(self, ip):
         for user in self.users:
             if user.ip == ip:
@@ -66,18 +69,19 @@ class Server:
     def start_server(self):
         while True:
             user, addr = self.ser.accept()
-            Thread(target=self.auth, args=(user, addr,)).start()
+            self.thread = Thread(target=self.auth, args=(user, addr,))
+            self.thread.start()
 
     def listen(self, user, addr):
-        is_work = True
-        while is_work:
+        while self.server_answer:
+
             try:
                 this_user = self.get_user(addr[0])
                 msg = self.get_msg(user, this_user.key)
             except Exception as e:
                 print('Client disconnected!')
                 msg = ''
-                is_work = False
+                self.server_answer = False
 
             if len(msg) > 0:
                 try:
@@ -88,7 +92,7 @@ class Server:
                 if data in ('disconnect', 'exit'):
                     print('Client disconnected!')
                     user.close()
-                    is_work = False
+                    self.server_answer = False
 
                 else:
                     this_user = self.get_user(addr[0])
@@ -101,14 +105,15 @@ class Server:
                     else:
                         user.close()
                         print('Client disconnected!')
-                        is_work = False
+                        self.server_answer = False
 
             else:
                 user.close()
                 print('Client disconnected!')
-                is_work = False
+                self.server_answer = False
+
 
 
 if __name__ == '__main__':
-    app = Server('26.17.241.162', 7000)
+    app = Server('26.35.223.104', 7000)
     app.start_server()

@@ -18,12 +18,14 @@ class Game:
 
         self.player = PlayerEntity(self.manager).player
         self.map = self.manager.get(MapComponent, self.player).map
+        self.enemy = EnemyEntity(self.manager, 0.7)
 
-        self.manager.add_system(MouseControlSystem)
+        self.manager.add_system(EnemySpriteSystem)
         self.manager.add_system(LocatedSystem)
         self.manager.add_system(KeysControlSystem)
         self.manager.add_system(GravitationSystem)
         self.manager.add_system(FirstPersonWeaponSystem)
+        self.manager.add_system(MouseControlSystem)
 
         self.game_interface = game_interface.GameInterface(self.map, self.player, self.screen, self.manager)
 
@@ -39,15 +41,15 @@ class Game:
         self.client_return = None
 
     def update(self):
+        self.voxel_render.draw()
         events = pg.event.get()
         for _ in events:
             self.response_pressed_keys()
         self.manager.update_systems(self.screen, 0, events)
         self.voxel_render.update()
-        self.game_interface.update_mouse()
 
     def draw(self):
-        self.voxel_render.draw()
+
         self.game_interface.draw_fps(self.clock)
         self.game_interface.draw_config()
         self.game_interface.draw_mini_map()
@@ -62,8 +64,12 @@ class Game:
 
     def run(self):
         while self.game_run:
+
             self.update()
             self.draw()
+
+            if self.client is not None:
+                self.client.listen(self.player_data)
 
             self.client_return = []
             self.player_data = []

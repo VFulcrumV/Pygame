@@ -190,14 +190,14 @@ class FirstPersonWeaponSystem(System):
 
 class EnemySpriteSystem(System):
     def on_update(self, surface, deltatime, events):
-        player_pos = None
+        pos = None
         player_ang = None
         player_pitch = None
         player_height = None
         height_map = None
 
         for entity in self.manager.query([PlayerFlagComponent]):
-            player_pos = self.manager.get(PositionComponent, entity).position
+            pos = self.manager.get(PositionComponent, entity)
             player_ang = self.manager.get(AngleComponent, entity).angle
             player_pitch = self.manager.get(PitchComponent, entity).pitch
             player_height = self.manager.get(HeightComponent, entity).height
@@ -219,8 +219,7 @@ class EnemySpriteSystem(System):
             x = int(sprite_pos[0])
             y = int(sprite_pos[1])
 
-            dx, dy, dz = sprite_pos[0] - player_pos[0], sprite_pos[1] - player_pos[1], \
-                player_height - height_map[x, y][0]
+            dx, dy, dz = sprite_pos[0] - pos.position_x, sprite_pos[1] - pos.position_y, player_height - height_map[x, y][0]
             distance_to_sprite = math.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
 
             theta = math.atan2(dy, dx)
@@ -231,6 +230,8 @@ class EnemySpriteSystem(System):
 
             delta_rays = int(gamma / set.DELTA_ANGLE)
             current_ray = set.CENTRAL_RAY + delta_rays
+
+            print(distance_to_sprite)
 
             distance_to_sprite *= math.cos(set.HALF_FOV - current_ray * set.DELTA_ANGLE)
 
@@ -251,6 +252,6 @@ class EnemySpriteSystem(System):
                 current_height = int((player_height - height_map[x, y][0]) / distance_to_sprite * 500 + player_pitch) - 210
 
                 sprite_pos = (current_ray * set.SCALE - half_project_height, current_height - half_project_height + shift)
-                sprite = pg.transform.scale(entity_sprite, (project_height, project_height))
+                sprite = pg.transform.scale(entity_sprite, (half_project_height, half_project_height))
 
                 surface.blit(sprite, sprite_pos)
